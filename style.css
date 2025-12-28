@@ -1,14 +1,4 @@
-/* =========================
-   DNA VISUAL — NÍVEL 0
-   ========================= */
-
-:root {
-  --bg-dark: #0f0f0f;
-  --text-light: #f2f2f2;
-  --x4-green: #00ff88;
-}
-
-/* RESET BÁSICO */
+/* RESET */
 * {
   margin: 0;
   padding: 0;
@@ -16,79 +6,48 @@
 }
 
 /* BASE */
-body {
-  background-color: var(--bg-dark);
-  color: var(--text-light);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", monospace;
-  min-height: 100vh;
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: "Courier New", monospace;
+  background: black;
+  color: #00ff88;
+  overflow: hidden;
+}
 
+/* MATRIX CANVAS */
+#matrix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* CONTEÚDO FLUTUANTE */
+.content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  padding: 48px 24px;
 }
 
 /* HEADER */
-header {
-  padding: 3rem 1rem 2rem;
-  text-align: center;
-}
-
 header h1 {
-  color: var(--x4-green);
-  letter-spacing: 0.18em;
-  font-size: clamp(1.8rem, 5vw, 2.6rem);
-  text-shadow: 0 0 6px rgba(0, 255, 136, 0.35);
+  font-size: 2rem;
+  letter-spacing: 4px;
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
 }
 
-header p {
-  margin-top: 0.6rem;
-  opacity: 0.75;
+.sub {
+  margin-top: 8px;
   font-size: 0.9rem;
+  opacity: 0.7;
 }
 
 /* MAIN */
 main {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#existencia {
-  text-align: center;
-  padding: 2rem;
-}
-
-#existencia h2 {
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-  letter-spacing: 0.08em;
-  opacity: 0.85;
-}
-
-/* STATUS — núcleo */
-#status {
-  color: var(--x4-green);
-  font-family: monospace;
-  font-size: 1rem;
-  opacity: 0.85;
-}
-
-/* FOOTER */
-footer {
-  padding: 1.2rem;
-  text-align: center;
-  font-size: 0.75rem;
-  opacity: 0.6;
-}
-
-/* RESPONSIVO (mobile first já está ativo, aqui só ajuste fino) */
-@media (max-width: 480px) {
-  header {
-    padding-top: 2.2rem;
-  }
-
-  #existencia {
-    padding: 1.5rem;
-  }
-}
