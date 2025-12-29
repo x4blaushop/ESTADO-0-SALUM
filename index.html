@@ -30,21 +30,43 @@ canvas {
   z-index: 0;
 }
 
+/* CAMADA DA PORTA */
 .portal-container {
   position: relative;
   z-index: 2;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 22px;
 }
 
+/* AVISO LIMINAR */
+.portal-warning {
+  max-width: 520px;
+  text-align: center;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  opacity: 0.55;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 6px rgba(98,255,138,0.35);
+  animation: fadeBreath 6s ease-in-out infinite;
+}
+
+@keyframes fadeBreath {
+  0% { opacity: 0.25; }
+  50% { opacity: 0.65; }
+  100% { opacity: 0.25; }
+}
+
+/* BOTÃO = NÚCLEO GRAVITACIONAL */
 .portal-btn {
   padding: 18px 34px;
   border: 1px solid var(--neon);
   background: rgba(0,0,0,0.7);
   color: var(--neon);
-  font-size: 1rem;
+  font-size: 0.95rem;
   letter-spacing: 2px;
   cursor: pointer;
   text-decoration: none;
@@ -64,9 +86,17 @@ canvas {
 <canvas id="matrix"></canvas>
 
 <div class="portal-container">
+
+  <div class="portal-warning">
+    Ao atravessar, você entra em um ambiente regido por integridade.<br>
+    Nem todos permanecem.<br>
+    Nem tudo pode ser levado.
+  </div>
+
   <a href="https://x4blaushop.github.io/PLANET-OF-ARCHITECT/" class="portal-btn">
     ATRAVESSAR
   </a>
+
 </div>
 
 <script>
@@ -84,10 +114,9 @@ function resize() {
 resize();
 addEventListener("resize", resize);
 
-// CONFIGURAÇÃO DO ESPAÇO
 const SYMBOLS = "01";
-const TOTAL_PARTICLES = 2400; // 🔥 DENSIDADE ALTA
-const BASE_SPEED = 0.85;      // ⚡ ~2s mais rápido
+const TOTAL_PARTICLES = 2400;
+const BASE_SPEED = 0.85;
 const GRAVITY = 1400;
 
 let particles = [];
@@ -101,9 +130,8 @@ function centerOfButton() {
   };
 }
 
-// CRIA PARTÍCULAS (ESTRELAS)
 for (let i = 0; i < TOTAL_PARTICLES; i++) {
-  const depth = Math.random(); // profundidade
+  const depth = Math.random();
   particles.push({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
@@ -127,7 +155,6 @@ function draw() {
     const dy = center.y - p.y;
     const dist = Math.sqrt(dx * dx + dy * dy) + 0.001;
 
-    // CAMPO GRAVITACIONAL REAL
     let force = GRAVITY / (dist * dist + 120);
     force = Math.min(force, 0.08);
 
@@ -137,7 +164,6 @@ function draw() {
     p.x += p.vx * p.speed;
     p.y += p.vy * p.speed;
 
-    // RESET QUANDO "ENTRA NO NÚCLEO"
     if (dist < 12) {
       p.x = Math.random() < 0.5 ? Math.random() * canvas.width : (Math.random() < 0.5 ? -20 : canvas.width + 20);
       p.y = Math.random() < 0.5 ? Math.random() * canvas.height : (Math.random() < 0.5 ? -20 : canvas.height + 20);
