@@ -1,4 +1,4 @@
-# NÍVEL 0 — PROVA DE EXISTÊNCIA
+# ESTADO 0 Atrio do Infinito — PROVA DE EXISTÊNCIA
 
 Este repositório representa o **Nível 0 do sistema**.
 
