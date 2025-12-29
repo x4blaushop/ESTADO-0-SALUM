@@ -35,14 +35,13 @@ canvas {
 }
 
 #core {
-  position: relative;
-  padding: 14px 26px;
+  padding: 14px 28px;
   color: var(--green);
   border: 1px solid var(--green);
-  background: rgba(0,0,0,0.8);
-  box-shadow: 0 0 25px rgba(98,255,138,.6);
-  cursor: pointer;
+  background: rgba(0,0,0,0.85);
+  box-shadow: 0 0 35px rgba(98,255,138,.6);
   letter-spacing: 2px;
+  cursor: pointer;
   text-transform: uppercase;
 }
 </style>
@@ -63,8 +62,9 @@ resize();
 
 window.addEventListener("resize", resize);
 
-const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const particles = [];
+const MAX_PARTICLES = 1200;
 
 function resize(){
   canvas.width = innerWidth;
@@ -75,52 +75,57 @@ function spawnParticle() {
   const side = Math.floor(Math.random() * 4);
   let x, y;
 
-  if (side === 0) { x = Math.random() * canvas.width; y = -20; }
-  if (side === 1) { x = canvas.width + 20; y = Math.random() * canvas.height; }
-  if (side === 2) { x = Math.random() * canvas.width; y = canvas.height + 20; }
-  if (side === 3) { x = -20; y = Math.random() * canvas.height; }
+  if (side === 0) { x = Math.random() * canvas.width; y = -40; }
+  if (side === 1) { x = canvas.width + 40; y = Math.random() * canvas.height; }
+  if (side === 2) { x = Math.random() * canvas.width; y = canvas.height + 40; }
+  if (side === 3) { x = -40; y = Math.random() * canvas.height; }
 
   particles.push({
     x, y,
     char: chars[Math.floor(Math.random() * chars.length)],
-    speed: Math.random() * 0.8 + 0.4,
+    speed: Math.random() * 0.25 + 0.15,
     alpha: 1
   });
 }
 
 function update() {
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
   const rect = document.getElementById("core").getBoundingClientRect();
-  const targetX = rect.left + rect.width / 2;
-  const targetY = rect.top + rect.height / 2;
+  const tx = rect.left + rect.width / 2;
+  const ty = rect.top + rect.height / 2;
+  const forbiddenRadius = rect.width * 0.7;
+
+  ctx.font = "14px Courier New";
 
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
 
-    const dx = targetX - p.x;
-    const dy = targetY - p.y;
+    const dx = tx - p.x;
+    const dy = ty - p.y;
     const dist = Math.hypot(dx, dy);
 
-    if (dist < rect.width * 0.6) {
-      particles.splice(i,1);
+    if (dist < forbiddenRadius) {
+      particles.splice(i, 1);
       continue;
     }
 
-    p.x += (dx / dist) * p.speed * 1.8;
-    p.y += (dy / dist) * p.speed * 1.8;
-    p.alpha *= 0.992;
+    // força gravitacional suave
+    const force = Math.min(2.5, dist / 180);
+    p.x += (dx / dist) * p.speed * force;
+    p.y += (dy / dist) * p.speed * force;
+
+    p.alpha *= 0.994;
 
     ctx.fillStyle = `rgba(98,255,138,${p.alpha})`;
     ctx.fillText(p.char, p.x, p.y);
   }
 
-  if (particles.length < 500) spawnParticle();
+  while (particles.length < MAX_PARTICLES) spawnParticle();
   requestAnimationFrame(update);
 }
 
-ctx.font = "14px Courier New";
 update();
 </script>
 
