@@ -25,7 +25,7 @@ canvas {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 160px;
+  width: 170px;
   height: 60px;
   border: 1px solid #7CFF9E;
   color: #7CFF9E;
@@ -36,6 +36,7 @@ canvas {
   cursor: pointer;
   z-index: 10;
   box-shadow: 0 0 25px rgba(124,255,158,0.6);
+  transition: opacity 0.8s ease;
 }
 
 #portal::before {
@@ -44,7 +45,12 @@ canvas {
   width: 260px;
   height: 260px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,0,0,0.9) 35%, rgba(124,255,158,0.15) 60%, transparent 72%);
+  background: radial-gradient(
+    circle,
+    rgba(0,0,0,0.95) 38%,
+    rgba(124,255,158,0.18) 60%,
+    transparent 72%
+  );
   z-index: -1;
 }
 
@@ -58,6 +64,10 @@ canvas {
   font-size: 12px;
   letter-spacing: 2px;
 }
+
+.fade-out {
+  opacity: 0;
+}
 </style>
 </head>
 
@@ -65,31 +75,38 @@ canvas {
 
 <canvas id="matrix"></canvas>
 
-<div id="portal" onclick="entrar()">ATRAVESSAR</div>
+<div id="portal">ATRAVESSAR</div>
 
 <div id="warning">
   AO ATRAVESSAR, VOCÊ DEIXA ESTE PLANO
 </div>
 
+<audio id="portalSound" src="portal.mp3" preload="auto"></audio>
+
 <script>
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
+const portal = document.getElementById("portal");
+const sound = document.getElementById("portalSound");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 // ======================
-// DETECÇÃO DE DISPOSITIVO (LOD)
+// OPÇÃO 2 – DENSIDADE MÉDIA
 // ======================
-const isMobile = window.innerWidth < 768 || window.devicePixelRatio > 1.5;
+const isMobile = window.innerWidth < 768;
 
-// DENSIDADE ADAPTATIVA
-const columnCount = isMobile ? Math.floor(canvas.width / 26) : Math.floor(canvas.width / 14);
-const speedBase   = isMobile ? 0.6 : 1.2;
-const spawnChance = isMobile ? 0.015 : 0.035;
+const columnCount = isMobile
+  ? Math.floor(canvas.width / 22)
+  : Math.floor(canvas.width / 16);
+
+const speedBase   = isMobile ? 0.9 : 1.4;
+const spawnChance = isMobile ? 0.02 : 0.045;
 
 const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const columns = [];
+
 const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
 
@@ -97,12 +114,12 @@ for (let i = 0; i < columnCount; i++) {
   columns.push({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
-    speed: Math.random() * speedBase + 0.3
+    speed: Math.random() * speedBase + 0.4
   });
 }
 
 function draw() {
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.fillStyle = "rgba(0,0,0,0.22)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = "#7CFF9E";
@@ -116,14 +133,14 @@ function draw() {
       const dy = centerY - col.y;
       const dist = Math.sqrt(dx*dx + dy*dy);
 
-      const pull = Math.max(0.6, 6 - dist / 120);
+      const pull = Math.max(0.7, 6 - dist / 120);
 
       col.x += (dx / dist) * col.speed * pull;
       col.y += (dy / dist) * col.speed * pull;
 
       ctx.fillText(char, col.x, col.y);
 
-      if (dist < 80) {
+      if (dist < 90) {
         col.x = Math.random() * canvas.width;
         col.y = Math.random() * canvas.height;
       }
@@ -135,9 +152,20 @@ function draw() {
 
 draw();
 
-function entrar() {
-  window.location.href = "https://x4blaushop.github.io/PLANET-OF-ARCHITECT/";
-}
+// ======================
+// CLIQUE NO PORTAL (SOM + TRANSIÇÃO)
+// ======================
+portal.addEventListener("click", () => {
+  sound.currentTime = 0;
+  sound.play();
+
+  portal.classList.add("fade-out");
+  document.getElementById("warning").classList.add("fade-out");
+
+  setTimeout(() => {
+    window.location.href = "https://x4blaushop.github.io/PLANET-OF-ARCHITECT/";
+  }, 1200);
+});
 
 window.addEventListener("resize", () => {
   location.reload();
