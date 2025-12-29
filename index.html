@@ -1,211 +1,163 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NÍVEL 0</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NÍVEL 0</title>
 
-  <style>
-    :root {
-      --neon-green: #62ff8a;
-      --bg-dark: #000;
-    }
+<style>
+:root {
+  --neon: #62ff8a;
+  --bg: #000;
+}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-    body {
-      background: var(--bg-dark);
-      color: var(--neon-green);
-      font-family: 'Courier New', Courier, monospace;
-      overflow: hidden;
-    }
+body {
+  background: var(--bg);
+  overflow: hidden;
+  font-family: Courier New, monospace;
+  color: var(--neon);
+}
 
-    canvas#matrix {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-    }
+canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
 
-    /* Campo gravitacional */
-    .gravity-core {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background:
-        radial-gradient(
-          circle at center,
-          rgba(0,0,0,0.95) 0%,
-          rgba(0,0,0,0.85) 25%,
-          rgba(0,0,0,0.4) 45%,
-          transparent 65%
-        );
-      animation: pulse 6s ease-in-out infinite;
-    }
+/* Esfera negra */
+.black-hole {
+  position: fixed;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, #000 60%, rgba(0,0,0,0.9) 100%);
+  box-shadow:
+    0 0 40px rgba(98,255,138,0.25),
+    inset 0 0 40px rgba(0,0,0,1);
+  z-index: 1;
+}
 
-    @keyframes pulse {
-      0%, 100% { opacity: 0.9; }
-      50% { opacity: 1; }
-    }
+/* Botão */
+.portal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
 
-    .portal-layer {
-      position: relative;
-      z-index: 2;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      text-align: center;
-      gap: 24px;
-      padding: 20px;
-    }
+.portal button {
+  padding: 14px 28px;
+  background: transparent;
+  border: 1px solid var(--neon);
+  color: var(--neon);
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(98,255,138,0.5);
+  transition: 0.3s;
+}
 
-    .door-btn {
-      padding: 14px 28px;
-      font-size: 0.9rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      background: transparent;
-      color: var(--neon-green);
-      border: 1px solid var(--neon-green);
-      cursor: pointer;
-      box-shadow: 0 0 16px rgba(98,255,138,0.35);
-      transition: all 0.3s ease;
-    }
-
-    .door-btn:hover {
-      background: var(--neon-green);
-      color: #000;
-      box-shadow: 0 0 24px rgba(98,255,138,0.8);
-    }
-
-    .warning {
-      max-width: 560px;
-      background: rgba(0,0,0,0.8);
-      border: 1px solid var(--neon-green);
-      padding: 22px;
-      font-size: 0.9rem;
-      line-height: 1.6;
-      display: none;
-      box-shadow: 0 0 20px rgba(98,255,138,0.25);
-    }
-
-    .confirm-btn {
-      margin-top: 18px;
-      padding: 10px 22px;
-      font-size: 0.8rem;
-      background: transparent;
-      color: var(--neon-green);
-      border: 1px solid var(--neon-green);
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .confirm-btn:hover {
-      background: var(--neon-green);
-      color: #000;
-    }
-  </style>
+.portal button:hover {
+  background: var(--neon);
+  color: #000;
+}
+</style>
 </head>
 
 <body>
 
-  <canvas id="matrix"></canvas>
-  <div class="gravity-core"></div>
+<canvas id="matrix"></canvas>
+<div class="black-hole"></div>
 
-  <div class="portal-layer">
-    <button class="door-btn" id="openDoor">ATRAVESSAR</button>
+<div class="portal">
+  <button>ATRAVESSAR</button>
+</div>
 
-    <div class="warning" id="warningBox">
-      <p>
-        Ao atravessar esta porta, você entra em um ambiente diferente do comum.<br><br>
-        Nada aqui compete com o mundo que você já conhece.<br>
-        Ele apenas o reorganiza.<br><br>
-        Não há garantias.<br>
-        Não há atalhos.<br><br>
-        Se decidir seguir, siga com integridade.
-      </p>
+<script>
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
 
-      <button class="confirm-btn" id="confirmEntry">
-        PROSSEGUIR
-      </button>
-    </div>
-  </div>
+function resize() {
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+}
+resize();
+addEventListener('resize', resize);
 
-  <script>
-    /* MATRIX COM GRAVIDADE CENTRAL */
-    const canvas = document.getElementById('matrix');
-    const ctx = canvas.getContext('2d');
+const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const particles = [];
+const density = 500;
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
+const center = () => ({
+  x: canvas.width / 2,
+  y: canvas.height / 2
+});
 
-    const letters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const fontSize = 14;
-    const columns = () => Math.floor(canvas.width / fontSize);
-    let drops = [];
+class Particle {
+  constructor() {
+    this.reset();
+  }
 
-    function initDrops() {
-      drops = Array(columns()).fill(1);
-    }
-    initDrops();
+  reset() {
+    const side = Math.floor(Math.random() * 4);
+    if (side === 0) { this.x = Math.random() * canvas.width; this.y = -20; }
+    if (side === 1) { this.x = canvas.width + 20; this.y = Math.random() * canvas.height; }
+    if (side === 2) { this.x = Math.random() * canvas.width; this.y = canvas.height + 20; }
+    if (side === 3) { this.x = -20; this.y = Math.random() * canvas.height; }
 
-    function drawMatrix() {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    this.vx = 0;
+    this.vy = 0;
+    this.char = chars[Math.floor(Math.random() * chars.length)];
+    this.life = Math.random() * 200 + 100;
+  }
 
-      ctx.fillStyle = '#62ff8a';
-      ctx.font = fontSize + 'px Courier New';
+  update() {
+    const c = center();
+    const dx = c.x - this.x;
+    const dy = c.y - this.y;
+    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
 
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
+    const force = Math.min(2, 120 / dist);
+    this.vx += dx / dist * force * 0.03;
+    this.vy += dy / dist * force * 0.03;
 
-      drops.forEach((y, i) => {
-        const text = letters[Math.floor(Math.random() * letters.length)];
-        const x = i * fontSize;
+    this.x += this.vx;
+    this.y += this.vy;
 
-        // força gravitacional sutil
-        const dx = centerX - x;
-        const dy = centerY - y * fontSize;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        const gravity = Math.min(1.2, 120 / dist);
+    this.life--;
+    if (dist < 20 || this.life <= 0) this.reset();
+  }
 
-        ctx.fillText(text, x + dx * gravity * 0.002, y * fontSize + dy * gravity * 0.002);
+  draw() {
+    ctx.fillStyle = "rgba(98,255,138,0.85)";
+    ctx.fillText(this.char, this.x, this.y);
+  }
+}
 
-        if (y * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      });
-    }
+for (let i = 0; i < density; i++) {
+  particles.push(new Particle());
+}
 
-    setInterval(drawMatrix, 40);
+function animate() {
+  ctx.fillStyle = "rgba(0,0,0,0.2)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    /* PORTA */
-    const openDoor = document.getElementById('openDoor');
-    const warningBox = document.getElementById('warningBox');
-    const confirmEntry = document.getElementById('confirmEntry');
+  ctx.font = "14px Courier New";
+  particles.forEach(p => {
+    p.update();
+    p.draw();
+  });
 
-    openDoor.addEventListener('click', () => {
-      openDoor.style.display = 'none';
-      warningBox.style.display = 'block';
-    });
+  requestAnimationFrame(animate);
+}
 
-    confirmEntry.addEventListener('click', () => {
-      // destino futuro
-      // window.location.href = '../NIVEL1/';
-      alert('A travessia será definida.');
-    });
-  </script>
+animate();
+</script>
 
 </body>
 </html>
