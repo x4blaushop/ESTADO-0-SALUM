@@ -7,64 +7,56 @@
 
 <style>
 :root {
-  --neon: #62ff8a;
+  --dna: #62ff8a;
   --bg: #000;
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
   background: var(--bg);
+  color: var(--dna);
+  font-family: "Courier New", monospace;
   overflow: hidden;
-  font-family: Courier New, monospace;
-  color: var(--neon);
 }
 
-canvas {
+/* CANVAS */
+#matrix {
   position: fixed;
   inset: 0;
   z-index: 0;
 }
 
-/* Esfera negra */
-.black-hole {
-  position: fixed;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, #000 60%, rgba(0,0,0,0.9) 100%);
-  box-shadow:
-    0 0 40px rgba(98,255,138,0.25),
-    inset 0 0 40px rgba(0,0,0,1);
-  z-index: 1;
-}
-
-/* Botão */
+/* PORTA */
 .portal {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   z-index: 2;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .portal button {
-  padding: 14px 28px;
   background: transparent;
-  border: 1px solid var(--neon);
-  color: var(--neon);
+  border: 1px solid var(--dna);
+  color: var(--dna);
+  padding: 16px 36px;
+  font-size: 0.9rem;
   letter-spacing: 2px;
   cursor: pointer;
-  box-shadow: 0 0 16px rgba(98,255,138,0.5);
-  transition: 0.3s;
+  box-shadow: 0 0 20px rgba(98,255,138,0.35);
+  transition: all 0.3s ease;
 }
 
 .portal button:hover {
-  background: var(--neon);
+  background: var(--dna);
   color: #000;
+  box-shadow: 0 0 40px rgba(98,255,138,0.8);
 }
 </style>
 </head>
@@ -72,31 +64,33 @@ canvas {
 <body>
 
 <canvas id="matrix"></canvas>
-<div class="black-hole"></div>
 
 <div class="portal">
-  <button>ATRAVESSAR</button>
+  <button onclick="location.href='https://x4blaushop.github.io/PLANET-OF-ARCHITECT/'">
+    ATRAVESSAR
+  </button>
 </div>
 
 <script>
-const canvas = document.getElementById('matrix');
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
 
 function resize() {
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
 resize();
-addEventListener('resize', resize);
+window.addEventListener("resize", resize);
 
-const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const letters = "01";
+const fontSize = 14;
 const particles = [];
-const density = 500;
+const maxParticles = Math.floor((canvas.width * canvas.height) / 9000);
 
-const center = () => ({
-  x: canvas.width / 2,
-  y: canvas.height / 2
-});
+const center = {
+  x: () => canvas.width / 2,
+  y: () => canvas.height / 2
+};
 
 class Particle {
   constructor() {
@@ -104,59 +98,63 @@ class Particle {
   }
 
   reset() {
-    const side = Math.floor(Math.random() * 4);
-    if (side === 0) { this.x = Math.random() * canvas.width; this.y = -20; }
-    if (side === 1) { this.x = canvas.width + 20; this.y = Math.random() * canvas.height; }
-    if (side === 2) { this.x = Math.random() * canvas.width; this.y = canvas.height + 20; }
-    if (side === 3) { this.x = -20; this.y = Math.random() * canvas.height; }
-
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
     this.vx = 0;
     this.vy = 0;
-    this.char = chars[Math.floor(Math.random() * chars.length)];
-    this.life = Math.random() * 200 + 100;
+    this.char = letters[Math.floor(Math.random() * letters.length)];
   }
 
   update() {
-    const c = center();
-    const dx = c.x - this.x;
-    const dy = c.y - this.y;
-    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+    const dx = center.x() - this.x;
+    const dy = center.y() - this.y;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-    const force = Math.min(2, 120 / dist);
-    this.vx += dx / dist * force * 0.03;
-    this.vy += dy / dist * force * 0.03;
+    // FORÇA GRAVITACIONAL (CONTROLADA)
+    const force = 0.08;
+    this.vx += (dx / dist) * force;
+    this.vy += (dy / dist) * force;
+
+    // DAMPING = rastro suave
+    this.vx *= 0.985;
+    this.vy *= 0.985;
 
     this.x += this.vx;
     this.y += this.vy;
 
-    this.life--;
-    if (dist < 20 || this.life <= 0) this.reset();
+    // Se colapsar no núcleo, renasce
+    if (dist < 10) {
+      this.reset();
+    }
   }
 
   draw() {
-    ctx.fillStyle = "rgba(98,255,138,0.85)";
     ctx.fillText(this.char, this.x, this.y);
   }
 }
 
-for (let i = 0; i < density; i++) {
+// CRIA PARTÍCULAS
+for (let i = 0; i < maxParticles; i++) {
   particles.push(new Particle());
 }
 
-function animate() {
-  ctx.fillStyle = "rgba(0,0,0,0.2)";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+function draw() {
+  // RASTRO (não limpa totalmente)
+  ctx.fillStyle = "rgba(0,0,0,0.15)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.font = "14px Courier New";
+  ctx.fillStyle = "#62ff8a";
+  ctx.font = `${fontSize}px monospace`;
+
   particles.forEach(p => {
     p.update();
     p.draw();
   });
 
-  requestAnimationFrame(animate);
+  requestAnimationFrame(draw);
 }
 
-animate();
+draw();
 </script>
 
 </body>
