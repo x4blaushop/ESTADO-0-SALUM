@@ -7,26 +7,31 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="pacified-alert" class="toast">Sincronização Matrix C3/X4 concluída com sucesso.</div>
+    <div id="pacified-alert" class="toast">SINCRONIA MATRIX C3/X4 ATIVA: ACESSO PERMITIDO.</div>
 
     <canvas id="portalCanvas"></canvas>
-    <main>
+
+    <main class="gate-container">
         <section class="section">
             <h1>UNIT_GATE_0</h1>
-            <p>CONEXÃO ESTABELECIDA. BEM-VINDO AO NÍVEL ZERO.</p>
+            <p>CONEXÃO ESTABELECIDA. IDENTIDADE MATRIX SINCRONIZADA.</p>
         </section>
+
         <section class="section">
             <div class="portals">
                 <a href="https://x4blaushop.github.io/ESTADO-0-ATRIO-DO-INFITINO/" class="owner-link">
-                    CONFIRMAR ACESSO ➡
+                    ATRAVESSAR PORTAL ➡
                 </a>
             </div>
+        </section>
+
+        <section class="section status">
+            <p>DNA_AUTH: C3_X4_STABLE</p>
         </section>
     </main>
 
     <script src="script.js"></script>
     <script>
-        // Ativação da mensagem pacífica sem travar o sistema
         window.onload = () => {
             const toast = document.getElementById('pacified-alert');
             toast.classList.add('show');
