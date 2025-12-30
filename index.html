@@ -7,32 +7,23 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="pacified-alert" class="toast">ATENÇÃO: CONEXÃO DETECTADA. SINCRONIZE PARA ENTRAR.</div>
-
     <canvas id="portalCanvas"></canvas>
 
     <main class="gate-container">
         <section class="section">
             <h1>UNIT_PORTAL_0</h1>
-            <p>PORTA 01 ATIVA. AGUARDANDO COMANDO DE ENTRADA.</p>
+            <p>ATENÇÃO: CONEXÃO DETECTADA. PORTAL DISPONÍVEL.</p>
         </section>
 
         <section class="section">
             <div class="portals">
                 <a href="https://x4blaushop.github.io/ESTADO-0-ATRIO-DO-INFITINO/" class="owner-link">
-                    CONFIRMAR ACESSO ➡
+                    AVANÇAR PARA ESTADO 0 ➡
                 </a>
             </div>
         </section>
     </main>
 
     <script src="script.js"></script>
-    <script>
-        window.onload = () => {
-            const toast = document.getElementById('pacified-alert');
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 5000);
-        };
-    </script>
 </body>
 </html>
